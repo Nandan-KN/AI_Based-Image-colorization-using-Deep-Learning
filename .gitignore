@@ -1,0 +1,13 @@
+ddcolor_venv/
+venv/
+__pycache__/
+*.pyc
+
+dataset/
+val2017/
+models/
+
+uploads/*
+outputs/*
+
+.git/
