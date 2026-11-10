@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Colorizer Studio - Multi-Engine Neural Restoration</title>
+    <style>
+        :root {
+            --bg-body: #0a0f1d;
+            --bg-card: rgba(18, 24, 43, 0.95);
+            --bg-card-sub: #162036;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --accent-cyan: #06b6d4;
+            --accent-purple: #8b5cf6;
+            --accent-amber: #f59e0b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-active: #3b82f6;
+            --radius: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-body);
+            background-image: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 65%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            padding: 24px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--accent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .logo-title {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-subtitle {
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .device-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: var(--bg-card-sub);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+
+        .device-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+        }
+
+        main {
+            width: min(880px, 92%);
+            margin: 40px auto 60px;
+            flex: 1;
+        }
+
+        .hero-text {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .hero-text h1 {
+            font-size: 38px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -0.8px;
+            background: linear-gradient(135deg, #ffffff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-text p {
+            font-size: 16px;
+            color: var(--text-sub);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .studio-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+        }
+
+        .error-banner {
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            border-radius: 10px;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-label {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-sub);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Engine Selector Cards */
+        .engine-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .engine-card {
+            position: relative;
+            background: var(--bg-card-sub);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .engine-card input[type="radio"] {
+            display: none;
+        }
+
+        .engine-card:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .engine-card.active {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.12);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.25);
+        }
+
+        .engine-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .engine-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 10px;
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            text-transform: uppercase;
+        }
+
+        .engine-desc {
+            font-size: 11px;
+            color: var(--text-sub);
+            line-height: 1.4;
+        }
+
+        /* Upload Area */
+        .upload-dropzone {
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            background: rgba(22, 32, 54, 0.5);
+            border-radius: var(--radius);
+            padding: 34px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .upload-dropzone:hover, .upload-dropzone.dragover {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.08);
+        }
+
+        .upload-icon {
+            font-size: 38px;
+            margin-bottom: 12px;
+            color: var(--primary);
+        }
+
+        .upload-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .upload-hint {
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .preview-box {
+            display: none;
+            max-width: 220px;
+            margin: 14px auto 0;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .preview-box img {
+            width: 100%;
+            display: block;
+        }
+
+        /* Controls Grid */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            background: var(--bg-card-sub);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 28px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        select.form-control {
+            width: 100%;
+            padding: 11px 14px;
+            background: #0d1527;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 14px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        select.form-control:focus {
+            border-color: var(--primary);
+        }
+
+        /* Switch Control */
+        .toggle-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 4px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #334155;
+            transition: .3s;
+            border-radius: 30px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px; width: 20px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        /* Action Button */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), #1d4ed8);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.35);
+            transition: all 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.45);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Sample Gallery */
+        .sample-section {
+            margin-top: 32px;
+            border-top: 1px solid var(--border);
+            padding-top: 24px;
+        }
+
+        .sample-grid {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+        }
+
+        .sample-chip {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 14px;
+            background: var(--bg-card-sub);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-main);
+            font-size: 13px;
+        }
+
+        .sample-chip:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(6, 182, 212, 0.12);
+        }
+
+        footer {
+            text-align: center;
+            padding: 24px;
+            font-size: 13px;
+            color: var(--text-sub);
+            border-top: 1px solid var(--border);
+            margin-top: auto;
+        }
+
+        @media (max-width: 768px) {
+            .engine-grid {
+                grid-template-columns: 1fr;
+            }
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+            .hero-text h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-group">
+            <div class="logo-badge">🎨</div>
+            <div>
+                <div class="logo-title">AI Colorizer Studio</div>
+                <div class="logo-subtitle">Major Project · Multimodal Colorization Pipeline</div>
+            </div>
+        </div>
+        <div class="device-pill">
+            <span class="device-dot"></span>
+            <span>{{ device_name }}</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="hero-text">
+            <h1>Photorealistic Neural Colorization</h1>
+            <p>Restore historical and grayscale photographs with zero chromatic bleeding, native luminance sharpness, and deep semantic scene understanding.</p>
+        </div>
+
+        <div class="studio-card">
+            {% if error %}
+                <div class="error-banner">
+                    <span>⚠️</span>
+                    <span>{{ error }}</span>
+                </div>
+            {% endif %}
+
+            <form action="{{ url_for('colorize') }}" method="POST" enctype="multipart/form-data" id="colorForm">
+                
+                <!-- 1. Engine Selection -->
+                <div class="section-label">⚙️ Select Neural Engine</div>
+                <div class="engine-grid">
+                    <label class="engine-card active" onclick="selectEngine(this)">
+                        <input type="radio" name="engine" value="resnet18" checked>
+                        <div class="engine-title">
+                            <span>ResNet-18 Chroma</span>
+                            <span class="engine-badge">Champion</span>
+                        </div>
+                        <div class="engine-desc">24.35 dB PSNR, vivid balanced natural palette, high frame-rate inference.</div>
+                    </label>
+
+                    <label class="engine-card" onclick="selectEngine(this)">
+                        <input type="radio" name="engine" value="teacher_ddcolor">
+                        <div class="engine-title">
+                            <span>DDColor Teacher</span>
+                            <span class="engine-badge" style="color: #60a5fa; background: rgba(59,130,246,0.2);">Attention</span>
+                        </div>
+                        <div class="engine-desc">Query-based semantic transformer. Excels on portraits and multi-subject scenes.</div>
+                    </label>
+
+                    <label class="engine-card" onclick="selectEngine(this)">
+                        <input type="radio" name="engine" value="unet">
+                        <div class="engine-title">
+                            <span>5-Stage U-Net</span>
+                            <span class="engine-badge" style="color: #c084fc; background: rgba(192,132,252,0.2);">Perceptual</span>
+                        </div>
+                        <div class="engine-desc">Pixel-accurate skip connections trained with VGG-16 perceptual feature loss.</div>
+                    </label>
+                </div>
+
+                <!-- 2. Image Upload -->
+                <div class="section-label">🖼️ Upload Grayscale Photograph</div>
+                <div class="upload-dropzone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-title" id="uploadPrompt">Drag & drop your photograph here, or browse</div>
+                    <div class="upload-hint">Supports high-resolution JPG, JPEG, PNG, WEBP (Native sharpness preserved)</div>
+                    <input type="file" name="image" id="fileInput" accept="image/*" style="display: none;" onchange="handleFile(this)">
+                    <input type="hidden" name="sample_image" id="sampleInput" value="">
+                    <div class="preview-box" id="previewBox">
+                        <img id="previewImg" src="" alt="Selected Preview">
+                    </div>
+                </div>
+
+                <!-- 3. Advanced Fine-Tuning Controls -->
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <label for="moodSelect">🎭 Color Mood & Tone Grading</label>
+                        <select name="mood" id="moodSelect" class="form-control">
+                            <option value="natural" selected>Natural & Balanced (Default)</option>
+                            <option value="vibrant">Vibrant Pop (+25% Saturation)</option>
+                            <option value="warm_sunset">Warm Golden Sunset (Golden Hour)</option>
+                            <option value="cool_cinematic">Cool Cinematic (Teal & Blue Shadows)</option>
+                            <option value="vintage_retro">Vintage 1970s Film (Kodachrome Warmth)</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label>🛡️ Edge-Aware Structural Lock</label>
+                        <div class="toggle-wrapper">
+                            <div>
+                                <div style="font-size: 13px; font-weight: 600;">Joint Guided Anti-Bleed</div>
+                                <div style="font-size: 11px; color: var(--text-sub);">Eliminates chromatic halos along edges</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="edge_lock" value="true" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span>✨ Colorize Photograph</span>
+                </button>
+
+                <!-- 4. Quick Samples -->
+                {% if sample_files %}
+                <div class="sample-section">
+                    <div class="section-label">⚡ Or Test with Instant Sample Photographs</div>
+                    <div class="sample-grid">
+                        {% for s in sample_files %}
+                        <div class="sample-chip" onclick="selectSample('{{ s }}')">
+                            <span>📷</span>
+                            <span>{{ s }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        AI Image Colorization Deep Learning Framework · Powered by PyTorch, CUDA & OpenCV
+    </footer>
+
+    <script>
+        function selectEngine(element) {
+            document.querySelectorAll('.engine-card').forEach(card => card.classList.remove('active'));
+            element.classList.add('active');
+            element.querySelector('input[type="radio"]').checked = true;
+        }
+
+        function handleFile(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                document.getElementById('sampleInput').value = "";
+                document.getElementById('uploadPrompt').innerText = "Selected: " + file.name;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('previewBox').style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function selectSample(filename) {
+            document.getElementById('sampleInput').value = filename;
+            document.getElementById('fileInput').value = "";
+            document.getElementById('uploadPrompt').innerText = "Selected Sample: " + filename;
+            document.getElementById('previewImg').src = "/samples/" + filename;
+            document.getElementById('previewBox').style.display = 'block';
+            document.getElementById('colorForm').submit();
+        }
+
+        const dropZone = document.getElementById('dropZone');
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => { e.preventDefault(); dropZone.classList.add('dragover'); }, false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); }, false);
+        });
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                document.getElementById('fileInput').files = files;
+                handleFile(document.getElementById('fileInput'));
+            }
+        });
+
+        document.getElementById('colorForm').onsubmit = function() {
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = '<span>⏳ Processing Neural Colorization...</span>';
+            btn.style.opacity = '0.8';
+            btn.disabled = true;
+        };
+    </script>
+</body>
+</html>

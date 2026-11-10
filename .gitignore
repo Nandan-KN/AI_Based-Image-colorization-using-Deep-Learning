@@ -1,13 +1,35 @@
+# Virtual Environments
+.venv/
+advanced_venv/
 ddcolor_venv/
 venv/
+
+# Python Cache
 __pycache__/
 *.pyc
+*.pyo
 
+# Datasets and Heavy Archives
 dataset/
 val2017/
-models/
+advanced_dataset/
+advanced_outputs/
+modelscope/
+.gradio/
 
+# Runtime and Upload Directories
 uploads/*
+uploads_resnet/*
 outputs/*
+!outputs/.gitkeep
 
-.git/
+# Checkpoint Size Management
+# Ignore heavy checkpoints (>100MB exceeds GitHub push limits)
+models/*.pth
+
+# Track only essential lightweight production checkpoints (<50MB)
+!models/cnn_best.pth
+!models/advanced_ddcolor_best.pth
+!models/color_palette.npy
+!models/palette_class_counts.npy
+!models/palette_class_weights.npy

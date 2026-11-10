@@ -3,5 +3,6 @@ torchvision
 opencv-python
 numpy
 Pillow
+gradio
 flask
 requests
