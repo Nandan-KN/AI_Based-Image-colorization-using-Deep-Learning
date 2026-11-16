@@ -296,5 +296,5 @@ if __name__ == "__main__":
     preload_all_models()
     print("[*] Building AI Image Colorization Studio interface...")
     demo = build_interface()
-    print("[*] Launching server on http://127.0.0.1:7860 ...")
-    demo.launch(server_name="0.0.0.0", server_port=7860, share=False, theme=THEME, css=CUSTOM_CSS)
+    print("[*] Launching server on http://127.0.0.1:7860 with public share link...")
+    demo.launch(server_name="0.0.0.0", server_port=7860, share=True, theme=THEME, css=CUSTOM_CSS)
