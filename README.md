@@ -1,3 +1,14 @@
+---
+title: AI Based Image Colorization Using Deep Learning
+emoji: 🎨
+colorFrom: blue
+colorTo: indigo
+sdk: gradio
+app_file: app.py
+pinned: false
+license: mit
+---
+
 # AI-Based Automatic Image Colorization Using Deep Learning and DDColor
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
